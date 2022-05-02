@@ -1,0 +1,29 @@
+app-id: com.steamgriddb.SGDBoop
+runtime: org.freedesktop.Platform
+runtime-version: '21.08'
+sdk: org.freedesktop.Sdk
+command: SGDBoop
+finish-args:
+  - --share=network
+  - --filesystem=~/.steam/steam/config/loginusers.vdf:ro # Used for reading SteamID
+  - --filesystem=~/.steam/steam/userdata:rw # For saving custom images except icons
+  - --filesystem=~/.steam/steam/appcache/librarycache:rw # For saving icons
+  # Same thing as above but for Flatpak Steam
+  - --filesystem=~/.var/app/com.valvesoftware.Steam/data/Steam/config/loginusers.vdf:ro
+  - --filesystem=~/.var/app/com.valvesoftware.Steam/data/Steam/userdata:rw
+  - --filesystem=~/.var/app/com.valvesoftware.Steam/data/Steam/appcache/librarycache:rw
+modules:
+  - name: sgdboop
+    no-autogen: true
+    sources:
+      - type: archive
+        url: https://api.github.com/repos/SteamGridDB/SGDBoop/tarball/v1.0.12
+        sha256: 8f937ba4b8639992dc5189e63fc1ad6ea43012e49c04dfdf5f4d303aef973e27
+        archive-type: tar-gzip
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/SteamGridDB/SGDBoop/releases/latest
+          url-query: .tarball_url
+          tag-query: .tag_name
+          version-query: .tag_name
+          timestamp-query: .published_at

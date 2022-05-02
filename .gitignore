@@ -1,0 +1,7 @@
+.flatpak-builder
+build
+repo
+node_modules
+remote
+appstream
+public/apps.json

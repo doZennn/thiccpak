@@ -1,0 +1,95 @@
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: Hash apps dir
+        id: appshash
+        run: |
+          echo "::set-output name=hash::$(find apps -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum | awk '{ print $1 }')"
+        shell: bash
+
+      - name: Cache repo
+        uses: actions/cache@v3.0.2
+        with:
+          path: |
+            .flatpak-builder
+            repo
+          key: builder-${{ steps.appshash.outputs.hash }}
+          restore-keys: |
+            builder-
+
+      - name: Cache flatpak deps
+        uses: actions/cache@v3
+        with:
+          path: ~/.local/share/flatpak
+          key: flatpak-${{ hashFiles('builddeps.txt') }}
+
+      - name: Add GPG key
+        env:
+          FLATPAK_SIGN_GPG: ${{ secrets.FLATPAK_SIGN_GPG }}
+        run: echo -e "$FLATPAK_SIGN_GPG" | gpg --import
+
+      - name: Install flatpak
+        run: |
+          sudo apt-get install -y flatpak flatpak-builder
+          flatpak --user remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+        
+      - name: Install SDKs
+        run: flatpak --user install flathub `cat builddeps.txt` -y
+        
+      - name: Build all apps
+        run: |
+          chmod +x buildall.sh
+          ./buildall.sh
+        
+      - name: Generate static deltas
+        run: |
+          flatpak build-update-repo --prune --gpg-sign=8614ED0F606A2EEE \
+          --title=Thiccpak \
+          --homepage=https://thiccpak.jozen.blue/ \
+          --icon=https://thiccpak.jozen.blue/logo.svg \
+          --collection-id=blue.jozen.Thiccpak \
+          --generate-static-deltas repo
+
+      - name: Prepare files
+        run: |
+          chmod +x prepush.sh
+          ./prepush.sh
+
+      - name: Push to remote
+        env:
+          REMOTE_REPO: ${{ secrets.REMOTE_REPO }}
+        run: |
+          git clone -q --depth 1 --filter=blob:none --sparse $REMOTE_REPO remote
+          cp -a repo remote
+          cd remote
+          mv repo public
+          rm -rf .git/
+          git init -b master
+          git config user.email "thiccpak-bot@jozen.blue"
+          git config user.name "Thiccpak Build Bot"
+          git add .
+          git commit -q -m 'repo'
+          git remote add origin $REMOTE_REPO > /dev/null
+          git push -q -u -f origin master
