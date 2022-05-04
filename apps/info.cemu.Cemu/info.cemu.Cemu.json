@@ -79,7 +79,7 @@
 				"install /usr/bin/unzip ${FLATPAK_DEST}/bin",
 				"install -Dm644 --target-directory=${FLATPAK_DEST}/share/metainfo info.cemu.Cemu.metainfo.xml",
 				"echo 'Icon=info.cemu.Cemu' >> info.cemu.Cemu.desktop",
-				"install -Dm644 --target-directory=${FLATPAK_DEST}/share info.cemu.Cemu.desktop"
+				"install -Dm644 --target-directory=export/share/applications info.cemu.Cemu.desktop"
 			],
 			"sources":[
 				{
