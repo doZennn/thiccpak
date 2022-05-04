@@ -4,37 +4,46 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thiccpak</title>
+  <title>thiccpak</title>
+  <meta name="description" content="a flatpak repo">
+  <meta property="og:site_name" content="thiccpak">
+  <meta name="theme-color" content="#b293f0">
+  <link rel="icon" href="/logo.svg" type="image/svg+xml">
   <style>
     pre {
       position: relative;
     }
-    code {
+    #remoteadd code {
       display: inline-block;
       padding-left: 2ch;
     }
-    code::before {
+    #remoteadd code::before {
       content: '$ ';
       display: block;
       position: absolute;
       left: 0;
     }
+    a {
+      color: #9b7dd6;
+    }
   </style>
 </head>
 <body>
   <h1>thiccpak — a flatpak repo</h1>
-  <pre><code>flatpak remote-add --if-not-exists thiccpak https://thiccpak.jozen.blue/thiccpak.flatpakrepo</code></pre>
+  <pre id="remoteadd"><code>flatpak remote-add --if-not-exists thiccpak https://thiccpak.jozen.blue/thiccpak.flatpakrepo</code></pre>
   <p>
     <b>Available apps:</b>
   </p>
   <ul id="appslist"></ul>
   <p>
-    Contact info: <i>look in the browser console</i>
+    Submit: Create a PR in <a href="https://github.com/doZennn/thiccpak">this repo</a>, add your manifest in <code>/apps</code>.
+    <br />
+    Contact info: <i><s>look in the browser console</s></i>
   </p>
   <script>
-    console.info(`%c Email:   ${atob('==QZ1xmYu4WZ69maAVWb'.split('').reverse().join(''))} \n Discord: Zennn#9889    `, 'background: #000; color: #f7ff8a; font-weight: bold;');
+    console.info(`%c General Inquiry: https://github.com/doZennn/thiccpak/discussions \n\n Email:   ${atob('==QZ1xmYu4WZ69maAVWb'.split('').reverse().join(''))} \n Discord: Zennn#9889    `, 'background: #000; color: #f7ff8a; font-weight: bold;');
     fetch('/apps.json', {
-     method: 'GET',
+      method: 'GET',
     })
     .then((response) => response.json())
     .then((apps) => {
