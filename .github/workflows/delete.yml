@@ -12,8 +12,7 @@ on:
         description: 'The minimum runs to keep for each workflow.'
         required: true
         default: '6'
-permissions:
-  contents: write
+permissions: write-all
 jobs:
   del_runs_auto:
     if: "${{ github.event.inputs.days == '' }}"
